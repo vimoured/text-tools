@@ -1,14 +1,8 @@
-" Handle {'foo': True, 'bar': None}
-"  This works but not as a function due to escaping
-"  :%!python3 -c "import ast,json,sys;obj=ast.literal_eval(sys.stdin.read());print(json.dumps(obj,sort_keys=True,indent=2))"
 function! text_tools#normalize_python_dict(line1, line2) abort
   let l:script = 'import ast,json,sys;obj=ast.literal_eval(sys.stdin.read());print(json.dumps(obj,sort_keys=True,indent=2,ensure_ascii=False))'
   execute a:line1 . ',' . a:line2 . '!python3 -c ' . shellescape(l:script)
 endfunction
 
-" handles '{"foo": true, "bar": null}'
-"  This works but not as a function due to escaping
-"  :%!python3 -c "import ast,json,sys;s=ast.literal_eval(sys.stdin.read());obj=json.loads(s);print(json.dumps(obj,sort_keys=True,indent=2))"
 function! text_tools#normalize_json_string(line1, line2) abort
   let l:script = 'import ast,json,sys;s=ast.literal_eval(sys.stdin.read());obj=json.loads(s);print(json.dumps(obj,sort_keys=True,indent=2,ensure_ascii=False))'
   execute a:line1 . ',' . a:line2 . '!python3 -c ' . shellescape(l:script)
@@ -62,7 +56,6 @@ endfunction
 
 function! text_tools#strip_on_save() abort
   call text_tools#strip_trailing_cr()
-  " Skip if explicitly disabled for this buffer
   if get(b:, 'text_tools_strip_whitespace', 1)
     call text_tools#strip_trailing_whitespace()
   endif
