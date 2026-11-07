@@ -1,10 +1,5 @@
 " text-tools: reformat Python dicts / JSON strings, number fold markers, and
 " strip trailing whitespace and CR line endings (optionally on every write).
-if exists('g:loaded_text_tools')
-  finish
-endif
-let g:loaded_text_tools = 1
-
 " {'foo': True, 'bar': None} -> sorted, indented JSON
 command! -range=% NormalizePythonDict call text_tools#normalize_python_dict(<line1>, <line2>)
 " '{"foo": true, "bar": null}' (a quoted JSON string) -> sorted, indented JSON
