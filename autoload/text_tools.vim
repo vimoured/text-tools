@@ -1,11 +1,18 @@
+function! s:normalize(line1, line2, script) abort
+  let l:out = systemlist('python3 -c ' . shellescape(a:script), getline(a:line1, a:line2))
+  if v:shell_error
+    echoerr 'text-tools: cannot read the text: ' . l:out[-1]
+  endif
+  call append(a:line2, l:out)
+  silent execute a:line1 . ',' . a:line2 . 'delete _'
+endfunction
+
 function! text_tools#normalize_python_dict(line1, line2) abort
-  let l:script = 'import ast,json,sys;obj=ast.literal_eval(sys.stdin.read());print(json.dumps(obj,sort_keys=True,indent=2,ensure_ascii=False))'
-  execute a:line1 . ',' . a:line2 . '!python3 -c ' . shellescape(l:script)
+  call s:normalize(a:line1, a:line2, 'import ast,json,sys;obj=ast.literal_eval(sys.stdin.read());print(json.dumps(obj,sort_keys=True,indent=2,ensure_ascii=False))')
 endfunction
 
 function! text_tools#normalize_json_string(line1, line2) abort
-  let l:script = 'import ast,json,sys;s=ast.literal_eval(sys.stdin.read());obj=json.loads(s);print(json.dumps(obj,sort_keys=True,indent=2,ensure_ascii=False))'
-  execute a:line1 . ',' . a:line2 . '!python3 -c ' . shellescape(l:script)
+  call s:normalize(a:line1, a:line2, 'import ast,json,sys;s=ast.literal_eval(sys.stdin.read());obj=json.loads(s);print(json.dumps(obj,sort_keys=True,indent=2,ensure_ascii=False))')
 endfunction
 
 function! s:NextFoldMarkerNumber() abort
@@ -14,13 +21,14 @@ function! s:NextFoldMarkerNumber() abort
 endfunction
 
 function! text_tools#number_fold_markers() abort
-  let l:total = str2nr(matchstr(execute('%s/{{{//gn'), '\d\+'))
+  call text_tools#strip_fold_marker_numbers()
+  let l:total = str2nr(matchstr(execute('%s/{{{//gne'), '\d\+'))
   let s:fold_marker_counter = 0
-  execute '%s#{{{#\="{{{ (" . s:NextFoldMarkerNumber() . "/" . l:total . ")"#g'
+  execute '%s#{{{#\="{{{ (" . s:NextFoldMarkerNumber() . "/" . l:total . ")"#ge'
 endfunction
 
 function! text_tools#strip_fold_marker_numbers() abort
-  %s/\({{{\) (\d\+\/\d\+)/\1/g
+  %s/\({{{\) (\d\+\/\d\+)/\1/ge
 endfunction
 
 function! s:WithPreservedCursor(Callback) abort
