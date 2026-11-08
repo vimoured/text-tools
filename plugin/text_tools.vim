@@ -13,10 +13,9 @@ command! StripFoldMarkerNumbers call text_tools#strip_fold_marker_numbers()
 command! StripTrailingWhitespace call text_tools#strip_trailing_whitespace()
 command! StripTrailingCR call text_tools#strip_trailing_cr()
 
-" With g:text_tools_strip_on_save set, both are stripped before every write.
-" b:text_tools_strip_whitespace = 0 keeps trailing whitespace in one buffer.
 augroup text_tools
   autocmd!
-  autocmd BufWritePre * if get(g:, 'text_tools_strip_on_save', 0)
+  autocmd BufWritePre * if get(g:, 'text_tools_strip_on_save', 1)
+        \ && get(b:, 'text_tools_strip_on_save', 1)
         \ | call text_tools#strip_on_save() | endif
 augroup END
